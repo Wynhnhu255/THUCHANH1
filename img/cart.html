@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Giỏ hàng - TQN Shop</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="shop-name">TQN Shop</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="../index.html">Trang chủ</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="cart">
+    <h2>Giỏ hàng của bạn</h2>
+    <div class="cart-container">
+      <div class="cart-item">
+        <div class="item-image">
+          <img src="figure1.jpg" alt="Figure Naruto">
+        </div>
+        <div class="item-info">
+          <h3>Figure Naruto</h3>
+          <p class="item-description">Mô hình nhân vật Naruto chất lượng cao</p>
+          <p class="item-price">500.000đ</p>
+        </div>
+        <div class="quantity-controls">
+          <button class="qty-btn minus">-</button>
+          <input type="number" value="1" min="1" class="quantity-input">
+          <button class="qty-btn plus">+</button>
+        </div>
+        <div class="item-total">
+          <p class="total-price">500.000đ</p>
+          <button class="remove-btn">🗑️ Xóa</button>
+        </div>
+      </div>
+      
+      <div class="cart-item">
+        <div class="item-image">
+          <img src="figure2.jpg" alt="Figure Luffy">
+        </div>
+        <div class="item-info">
+          <h3>Figure Luffy</h3>
+          <p class="item-description">Mô hình nhân vật Luffy One Piece</p>
+          <p class="item-price">450.000đ</p>
+        </div>
+        <div class="quantity-controls">
+          <button class="qty-btn minus">-</button>
+          <input type="number" value="2" min="1" class="quantity-input">
+          <button class="qty-btn plus">+</button>
+        </div>
+        <div class="item-total">
+          <p class="total-price">900.000đ</p>
+          <button class="remove-btn">🗑️ Xóa</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="checkout">
+      <div class="cart-summary">
+        <p>Tạm tính: <span class="subtotal">1.400.000đ</span></p>
+        <p>Phí vận chuyển: <span class="shipping">30.000đ</span></p>
+        <hr>
+        <p class="grand-total"><strong>Tổng cộng: 1.430.000đ</strong></p>
+      </div>
+      <div class="checkout-actions">
+        <button class="continue-shopping">← Tiếp tục mua sắm</button>
+        <button class="checkout-btn">Thanh toán ngay</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 TQN Shop. All rights reserved. | Cửa hàng Figure chính hãng số 1 Việt Nam</p>
+  </footer>
+
+  <script>
+    // Tải giỏ hàng từ localStorage
+    function loadCartFromStorage() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const buyNowProduct = JSON.parse(localStorage.getItem('buyNowProduct'));
+      
+      // Nếu có sản phẩm mua ngay, thêm vào giỏ hàng tạm thời
+      if (buyNowProduct) {
+        cart.push(buyNowProduct);
+        localStorage.removeItem('buyNowProduct'); // Xóa sau khi sử dụng
+      }
+      
+      if (cart.length === 0) {
+        document.querySelector('.cart-container').innerHTML = 
+          '<div class="empty-cart"><h3>🛒 Giỏ hàng trống</h3><p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!</p><a href="../index.html">← Quay về trang chủ</a></div>';
+        
+        // Ẩn phần checkout khi giỏ hàng trống
+        document.querySelector('.checkout').style.display = 'none';
+        return;
+      } else {
+        // Hiện phần checkout khi có sản phẩm
+        document.querySelector('.checkout').style.display = 'block';
+      }
+      
+      // Tạo HTML cho các sản phẩm trong giỏ hàng
+      let cartHTML = '';
+      cart.forEach((item, index) => {
+        cartHTML += `
+          <div class="cart-item" data-id="${item.id}">
+            <div class="item-image">
+              <img src="../${item.image}" alt="${item.name}">
+            </div>
+            <div class="item-info">
+              <h3>${item.name}</h3>
+              <p class="item-description">Mô hình chất lượng cao chính hãng</p>
+              <p class="item-price">${item.price.toLocaleString('vi-VN')}đ</p>
+            </div>
+            <div class="quantity-controls">
+              <button class="qty-btn minus">-</button>
+              <input type="number" value="${item.quantity}" min="1" class="quantity-input">
+              <button class="qty-btn plus">+</button>
+            </div>
+            <div class="item-total">
+              <p class="total-price">${(item.price * item.quantity).toLocaleString('vi-VN')}đ</p>
+              <button class="remove-btn">🗑️ Xóa</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      document.querySelector('.cart-container').innerHTML = cartHTML;
+      
+      // Gọi lại setupEventListeners sau khi tạo HTML mới
+      setTimeout(() => {
+        setupEventListeners();
+        updateGrandTotal(); // Gọi sau khi setup xong
+      }, 100);
+    }
+
+    // Xử lý tăng/giảm số lượng
+    document.addEventListener('DOMContentLoaded', function() {
+      // Tải giỏ hàng từ localStorage trước
+      loadCartFromStorage();
+      
+      // Đảm bảo tổng tiền được tính đúng khi trang load
+      setTimeout(() => {
+        updateGrandTotal();
+      }, 200);
+      setupEventListeners();
+    });
+    
+    function setupEventListeners() {
+      const minusButtons = document.querySelectorAll('.minus');
+      const plusButtons = document.querySelectorAll('.plus');
+      const quantityInputs = document.querySelectorAll('.quantity-input');
+      const removeButtons = document.querySelectorAll('.remove-btn');
+      
+      // Xử lý nút giảm số lượng
+      minusButtons.forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+          const input = quantityInputs[index];
+          let currentValue = parseInt(input.value);
+          if (currentValue > 1) {
+            input.value = currentValue - 1;
+            updateTotal(index);
+          }
+        });
+      });
+      
+      // Xử lý nút tăng số lượng
+      plusButtons.forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+          const input = quantityInputs[index];
+          let currentValue = parseInt(input.value);
+          input.value = currentValue + 1;
+          updateTotal(index);
+        });
+      });
+      
+      // Xử lý thay đổi số lượng trực tiếp
+      quantityInputs.forEach((input, index) => {
+        input.addEventListener('change', function() {
+          if (parseInt(this.value) < 1) {
+            this.value = 1;
+          }
+          updateTotal(index);
+        });
+      });
+      
+      // Xử lý nút xóa sản phẩm
+      removeButtons.forEach((btn, index) => {
+        btn.addEventListener('click', function() {
+          if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            const cartItem = btn.closest('.cart-item');
+            cartItem.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+              cartItem.remove();
+              updateCartInStorage();
+              
+              // Kiểm tra nếu giỏ hàng trống sau khi xóa
+              const remainingItems = document.querySelectorAll('.cart-item');
+              if (remainingItems.length === 0) {
+                document.querySelector('.cart-container').innerHTML = 
+                  '<div class="empty-cart"><h3>🛒 Giỏ hàng trống</h3><p>Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm!</p><a href="../index.html">← Quay về trang chủ</a></div>';
+                document.querySelector('.checkout').style.display = 'none';
+                localStorage.removeItem('cart'); // Xóa giỏ hàng trống khỏi localStorage
+              } else {
+                updateGrandTotal();
+              }
+            }, 300);
+          }
+        });
+      });
+      
+      // Cập nhật tổng tiền của từng sản phẩm
+      function updateTotal(index) {
+        // Cập nhật localStorage trước
+        updateCartInStorage();
+        // Sau đó cập nhật hiển thị tổng tiền
+        updateGrandTotal();
+      }
+      
+      // Cập nhật giỏ hàng trong localStorage
+      function updateCartInStorage() {
+        const cartItems = document.querySelectorAll('.cart-item');
+        const cart = [];
+        
+        cartItems.forEach(item => {
+          const id = parseInt(item.dataset.id);
+          const name = item.querySelector('.item-info h3').textContent;
+          const price = parseFloat(item.querySelector('.item-price').textContent.replace(/[^\d]/g, ''));
+          const quantity = parseInt(item.querySelector('.quantity-input').value);
+          const image = item.querySelector('.item-image img').src.replace(window.location.origin + '/', '').replace('../', '');
+          
+          cart.push({ id, name, price, quantity, image });
+        });
+        
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+      
+      // Cập nhật tổng tiền tất cả
+      function updateGrandTotal() {
+        const cartItems = document.querySelectorAll('.cart-item');
+        let subtotal = 0;
+        
+        // Tính tổng từng sản phẩm
+        cartItems.forEach(item => {
+          const priceText = item.querySelector('.item-price').textContent;
+          const quantityValue = parseInt(item.querySelector('.quantity-input').value);
+          
+          // Lấy giá tiền (loại bỏ dấu phẩy và ký tự đ)
+          const price = parseFloat(priceText.replace(/[.,đ\s]/g, ''));
+          const itemTotal = price * quantityValue;
+          
+          // Cập nhật total-price cho item này
+          item.querySelector('.total-price').textContent = 
+            new Intl.NumberFormat('vi-VN').format(itemTotal) + 'đ';
+          
+          subtotal += itemTotal;
+        });
+        
+        const shipping = 30000;
+        const grandTotal = subtotal + shipping;
+        
+        // Cập nhật các phần tử hiển thị tổng tiền
+        const subtotalElement = document.querySelector('.subtotal');
+        const grandTotalElement = document.querySelector('.grand-total strong');
+        
+        if (subtotalElement) {
+          subtotalElement.textContent = new Intl.NumberFormat('vi-VN').format(subtotal) + 'đ';
+        }
+        
+        if (grandTotalElement) {
+          grandTotalElement.textContent = 'Tổng cộng: ' + new Intl.NumberFormat('vi-VN').format(grandTotal) + 'đ';
+        }
+      }
+      
+      // Xử lý nút tiếp tục mua sắm
+      document.querySelector('.continue-shopping').addEventListener('click', function() {
+        window.location.href = '../index.html';
+      });
+    }
+  </script>
+
+  <style>
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-100%); }
+    }
+  </style>
+</body>
+</html>
