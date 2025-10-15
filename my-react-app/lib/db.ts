@@ -50,11 +50,33 @@ export type Database = {
   users: any[];
 };
 
+const CACHE_TTL_MS = 1000;
+
+type DbCacheStore = {
+  value: Database | null;
+  timestamp: number;
+};
+
+const globalForDb = globalThis as unknown as {
+  __tqnDbCache__?: DbCacheStore;
+};
+
+const dbCache: DbCacheStore =
+  globalForDb.__tqnDbCache__ ?? (globalForDb.__tqnDbCache__ = { value: null, timestamp: 0 });
+
 // Đọc database
 export function readDB(): Database {
+  const now = Date.now();
+  if (dbCache.value && now - dbCache.timestamp < CACHE_TTL_MS) {
+    return dbCache.value;
+  }
+
   try {
     const data = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(data);
+    const parsed: Database = JSON.parse(data);
+    dbCache.value = parsed;
+    dbCache.timestamp = now;
+    return parsed;
   } catch (error) {
     console.error('Error reading database:', error);
     return {
@@ -70,6 +92,8 @@ export function readDB(): Database {
 export function writeDB(data: Database): boolean {
   try {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    dbCache.value = data;
+    dbCache.timestamp = Date.now();
     return true;
   } catch (error) {
     console.error('Error writing database:', error);
