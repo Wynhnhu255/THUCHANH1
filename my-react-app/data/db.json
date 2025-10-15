@@ -1,0 +1,66 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Figure Naruto Uzumaki - Sage Mode",
+      "slug": "figure-naruto-sage-mode",
+      "price": 500000,
+      "oldPrice": 600000,
+      "image": "/img/figure1.svg",
+      "images": ["/img/figure1.svg", "/img/naruto.svg", "/img/naruto2.svg"],
+      "category": "anime",
+      "brand": "Bandai",
+      "features": [
+        "✨ Chất liệu PVC cao cấp từ Nhật Bản",
+        "🎨 Chi tiết tỉ mỉ, màu sắc sống động",
+        "📏 Kích thước: 25cm (1/8 scale)",
+        "🏆 Hàng chính hãng có tem bảo hành"
+      ],
+      "description": "Figure Naruto Uzumaki phiên bản Sage Mode với chi tiết tỉ mỉ, màu sắc sống động. Sản phẩm chính hãng từ Bandai.",
+      "stock": 15,
+      "rating": 4.8,
+      "reviews": 156,
+      "createdAt": "2024-01-15",
+      "updatedAt": "2025-10-15"
+    },
+    {
+      "id": 2,
+      "name": "Figure Monkey D. Luffy - Gear Fourth",
+      "slug": "figure-luffy-gear-fourth",
+      "price": 450000,
+      "oldPrice": null,
+      "image": "/img/figure2.svg",
+      "images": ["/img/figure2.svg", "/img/luffy.svg", "/img/luffy2.svg"],
+      "category": "anime",
+      "brand": "Bandai",
+      "features": [
+        "✨ Chất liệu PVC cao cấp từ Nhật Bản",
+        "🎨 Chi tiết sắc nét, tạo hình ấn tượng",
+        "📏 Kích thước: 23cm (1/8 scale)",
+        "🏆 Hàng chính hãng có tem bảo hành"
+      ],
+      "description": "Figure Monkey D. Luffy phiên bản Gear Fourth với tạo hình mạnh mẽ, ấn tượng. Sản phẩm chính hãng từ Bandai.",
+      "stock": 8,
+      "rating": 4.7,
+      "reviews": 132,
+      "createdAt": "2024-02-20",
+      "updatedAt": "2025-10-15"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Anime",
+      "slug": "anime",
+      "description": "Các sản phẩm figure anime"
+    },
+    {
+      "id": 2,
+      "name": "Game",
+      "slug": "game",
+      "description": "Các sản phẩm figure game"
+    }
+  ],
+  "orders": [],
+  "users": []
+}

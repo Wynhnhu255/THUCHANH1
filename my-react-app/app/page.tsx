@@ -1,15 +1,49 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 
-const products = [
-  { id: 1, name: "Figure Naruto", price: 500000, image: "/img/figure1.svg", oldPrice: 600000 },
-  { id: 2, name: "Figure Luffy", price: 450000, image: "/img/figure2.svg" }
-];
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  oldPrice?: number;
+};
 
 export default function Home() {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Gọi API để lấy danh sách sản phẩm
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setProducts(data.data);
+        }
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <main className="site-main">
+          <section className="product-list">
+            <h2>Đang tải...</h2>
+          </section>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div>

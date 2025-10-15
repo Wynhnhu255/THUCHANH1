@@ -2,51 +2,47 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 
-const products = [
-  { 
-    id: 1, 
-    name: "Figure Naruto Uzumaki - Sage Mode", 
-    price: 500000, 
-    oldPrice: 600000,
-    image: "/img/figure1.svg", 
-    images: ["/img/figure1.svg", "/img/naruto.svg", "/img/naruto2.svg"],
-    features: [
-      "✨ Chất liệu PVC cao cấp từ Nhật Bản",
-      "🎨 Chi tiết tỉ mỉ, màu sắc sống động", 
-      "📏 Kích thước: 25cm (1/8 scale)",
-      "🏆 Hàng chính hãng có tem bảo hành"
-    ]
-  },
-  { 
-    id: 2, 
-    name: "Figure Monkey D. Luffy - Gear Fourth", 
-    price: 450000,
-    image: "/img/figure2.svg",
-    images: ["/img/figure2.svg", "/img/luffy.svg", "/img/luffy2.svg"],
-    features: [
-      "✨ Chất liệu PVC cao cấp từ Nhật Bản",
-      "🎨 Chi tiết sắc nét, tạo hình ấn tượng",
-      "📏 Kích thước: 23cm (1/8 scale)", 
-      "🏆 Hàng chính hãng có tem bảo hành"
-    ]
-  }
-];
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  oldPrice?: number;
+  image: string;
+  images: string[];
+  features: string[];
+  stock?: number;
+  rating?: number;
+  reviews?: number;
+};
 
 export default function ProductDetail() {
   const params = useParams();
   const productId = parseInt(params.id as string);
-  const currentProduct = products.find(p => p.id === productId) || products[0];
   
-  const [mainImg, setMainImg] = useState(currentProduct.image);
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [mainImg, setMainImg] = useState("");
   const [qty, setQty] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMainImg(currentProduct.image);
-    console.log('Product ID:', productId);
-    console.log('Current product:', currentProduct.name);
-  }, [productId, currentProduct]);
+    // Gọi API để lấy chi tiết sản phẩm
+    fetch(`/api/products/${productId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setCurrentProduct(data.data);
+          setMainImg(data.data.image);
+        }
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching product:', error);
+        setLoading(false);
+      });
+  }, [productId]);
 
   function addToCart() {
+    if (!currentProduct) return;
     const product = { id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, image: mainImg, quantity: qty };
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     const existing = cart.find((i: any) => i.id === product.id);
@@ -54,6 +50,27 @@ export default function ProductDetail() {
     else cart.push(product);
     localStorage.setItem("cart", JSON.stringify(cart));
     alert(`Đã thêm ${product.quantity} sản phẩm vào giỏ hàng!`);
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <main className="site-main">
+          <h2>Đang tải...</h2>
+        </main>
+      </div>
+    );
+  }
+
+  if (!currentProduct) {
+    return (
+      <div>
+        <main className="site-main">
+          <h2>Không tìm thấy sản phẩm</h2>
+          <a href="/">Quay lại trang chủ</a>
+        </main>
+      </div>
+    );
   }
 
   return (
