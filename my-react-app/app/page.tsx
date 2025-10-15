@@ -1,4 +1,6 @@
 "use client";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import ProductCard from "../components/ProductCard";
 
 const products = [
@@ -7,6 +9,8 @@ const products = [
 ];
 
 export default function Home() {
+  const router = useRouter();
+
   return (
     <div>
       <main className="site-main">
@@ -19,7 +23,7 @@ export default function Home() {
                 <h3>{p.name}</h3>
                 <p className="price">{p.price.toLocaleString('vi-VN')}đ {p.oldPrice ? <span className="old-price">{p.oldPrice.toLocaleString('vi-VN')}đ</span> : null}</p>
                 <div className="card-buttons">
-                  <a href="/product" className="btn detail-btn">Xem chi tiết</a>
+                  <button className="btn detail-btn" onClick={() => router.push(`/product/${p.id}`)}>Xem chi tiết</button>
                   <button className="btn add-cart-btn" onClick={() => {
                     const product = { id: p.id, name: p.name, price: p.price, image: p.image, quantity: 1 };
                     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
